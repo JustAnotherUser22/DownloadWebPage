@@ -1,0 +1,4 @@
+C:\Users\Mirko\Documents\Visual Studio 2010\Projects\myTest\DownloadWebPage\DownloadWebPage\bin\Debug\DownloadWebPage.exe
+C:\Users\Mirko\Documents\Visual Studio 2010\Projects\myTest\DownloadWebPage\DownloadWebPage\bin\Debug\DownloadWebPage.pdb
+C:\Users\Mirko\Documents\Visual Studio 2010\Projects\myTest\DownloadWebPage\DownloadWebPage\obj\x86\Debug\DownloadWebPage.exe
+C:\Users\Mirko\Documents\Visual Studio 2010\Projects\myTest\DownloadWebPage\DownloadWebPage\obj\x86\Debug\DownloadWebPage.pdb
