@@ -6,130 +6,425 @@ using System.Net;
 using System.IO;
 using System.Timers;
 using System.Net.Mail;
+using System.Net.Http;
+using Newtonsoft.Json;
+
 
 namespace DownloadWebPage
 {
     class Program
     {
+        static Entry[] values;
+
+        //uso questo per convertire da stringa a int della enum "tassi"
+        //si può fare anche senza, ma così è più veloce
+        //vedi anche https://stackoverflow.com/questions/16100/convert-a-string-to-an-enum-in-c-sharp/38711#38711
+        public static Dictionary<String, int> d = new Dictionary<string, int>();
+
         static void Main(string[] args)
         {
-            
-            Timer t = new Timer(10000);
-            t.Start();
-            t.Elapsed += new ElapsedEventHandler(t_Elapsed);
-            while (true);   //messo per non far terminare il programam prima che sia scaduto il timer
-            
+            InitDictionary();
+            InitValues();
+            //PrintValues();
+            FastChange fc = new FastChange();
+            InitFastChange(fc);
+            //fc.print();
 
-            //SendMail();
-            
+            //Entry e = new Entry("EUR_AUD");
+            //e.PrintEntry();
 
-            /*int start = myDataBuffer.IndexOf(Constant.UP_ARROW);
-            int stop = myDataBuffer.IndexOf(Constant.END);
-            var delta = stop - start;
-            
-            string usefullData = myDataBuffer.Substring(start, delta);
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
+            string ID = GetID();
+            //GetQuote(ID, "EUR_AUD", e);
+            //Stream(ID);
+            TestDelay(ID);
 
-            start = usefullData.IndexOf(Constant.DATO);
-            stop = usefullData.IndexOf(Constant.DATO_END);
-            var dato1 = usefullData.Substring(start + Constant.DATO.Length, stop - start - Constant.DATO.Length);
+            System.Threading.Thread th = new System.Threading.Thread(() => Stream(ID));
+            th.Start();
+
+            sw.Stop();
+            Console.WriteLine(sw.ElapsedMilliseconds);
+
+            /*while(true)
+            {
+                //System.Threading.Thread.Sleep(10000);
+                System.Threading.Thread.Sleep(500);
+                Console.Clear();
+                PrintValues();
+            }*/
+
+            //e.PrintEntry();
+            Console.Read();
+        }
+
+        static void InitFastChange(FastChange fc)
+        {
+            for(int i = 0; i < (int)Constant.tassi.LAST_VALUE; i++)
+            {
+                string[] entry = ((Constant.tassi)i).ToString().Split('_');
+                fc.addString(entry[0]);
+                fc.addString(entry[1]);
+            }
+        }
+
+        static void InitDictionary()
+        {
+            Array array = Enum.GetValues(typeof(Constant.tassi));
+            string[] names = Enum.GetNames(typeof(Constant.tassi));
+
+            int[] values = new int[array.Length];
+
+            for (int i = 0; i < array.Length; i++)
+                values[i] = (int)array.GetValue(i);
+
+            for (int i = 0; i < (int)Constant.tassi.LAST_VALUE; i++)
+                d.Add(names[i], values[i]);                
+        }
+
+        static void InitValues()
+        {
+            /*values = new Entry[(int)Constant.tassi.LAST_VALUE];
+            for (int i = 0; i < values.Length; i++)
+                values[i] = new Entry(((Constant.tassi)i).ToString());*/
+            values = new Entry[d.Count];
+
+            var keys = d.Keys;
+            int i = 0;
+            foreach (string s in keys)
+            {
+                values[i] = new Entry(s);
+                values[i].ID = i;
+                i++;
+            }
+        }
+
+        static void PrintValues()
+        {
+            for (int i = 0; i < values.Length; i++)
+                values[i].PrintEntry();
+        }
+
+        static string GetID()
+        {
+            string addr = "https://api-fxpractice.oanda.com/v3/accounts";
+            
+            //copiato in parte da qui
+            //https://github.com/oanda/csharp-exchange-rates/blob/master/ExchangeRatesAPI/ExchangeRatesAPI.cs
+
+            var request = (HttpWebRequest)WebRequest.Create(addr);
+            request.Method = "GET";
+            request.Headers.Add("Authorization", "Bearer " + Constant.TOKEN);
+
+            try
+            {
+                //https://docs.microsoft.com/it-it/dotnet/framework/network-programming/how-to-request-data-using-the-webrequest-class
+
+                HttpWebResponse webresponse = (HttpWebResponse)request.GetResponse();
+                var stream = webresponse.GetResponseStream();
+                StreamReader reader = new StreamReader(stream);
+                string responseFromServer = reader.ReadToEnd();
+                //Console.WriteLine(responseFromServer);
+
+                dynamic obj = JsonConvert.DeserializeObject(responseFromServer);
+                //Console.WriteLine("-----------");
+                //Console.WriteLine(obj.accounts[0].id);
+                webresponse.Close();
+
+                string ID = obj.accounts[0].id;
+                return ID;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            return "";
+        }
+
+        static void GetQuote(string ID, string item, Entry e)
+        {
+            /*info
+             * prezzo vendita -> prices.bid.price
+             * prezzo corrente -> prices.ask.price
+             * prezzo a cui ho acquistato -> non trovato
+             */
+            //(double, double) toReturn = (-1, -1);
+            string addr = "https://api-fxpractice.oanda.com/v3/accounts/" + ID + "/pricing?instruments=" + item;
+
+            //copiato in parte da qui
+            //https://github.com/oanda/csharp-exchange-rates/blob/master/ExchangeRatesAPI/ExchangeRatesAPI.cs
+
+            var request = (HttpWebRequest)WebRequest.Create(addr);
+            request.Method = "GET";
+            request.Headers.Add("Authorization", "Bearer " + Constant.TOKEN);
+
+            try
+            {
+                //https://docs.microsoft.com/it-it/dotnet/framework/network-programming/how-to-request-data-using-the-webrequest-class
+
+                HttpWebResponse webresponse = (HttpWebResponse)request.GetResponse();
+                var stream = webresponse.GetResponseStream();
+                StreamReader reader = new StreamReader(stream);
+                string responseFromServer = reader.ReadToEnd();
+                Console.WriteLine(responseFromServer);
+
+                dynamic obj = JsonConvert.DeserializeObject(responseFromServer);
+                //Console.WriteLine("-----------");
+                //Console.WriteLine(obj.prices[0].bids[0].price);
+                //Console.WriteLine(obj.prices[0].asks[0].price);
+                webresponse.Close();
+
+                e.acquisto = obj.prices[0].bids[0].price;
+                e.vendita = obj.prices[0].asks[0].price;
+
+                //toReturn.Item1 = obj.prices[0].bids[0].price;
+                //toReturn.Item2 = obj.prices[0].asks[0].price;
+                //string value = "";// obj.accounts[0].id;
+                //return toReturn;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            //return toReturn;
+        }
+
+        public static void Stream(string ID)
+        {
+            //string addr = "https://stream-fxpractice.oanda.com//v3/accounts/" + ID + "/pricing/stream?instruments=EUR_AUD";
+
+            var keys = d.Keys;
+
+            string end = "";
+            foreach(string s in keys)
+                end += s + "%2C";
+                     
+            end = end.Remove(end.Length - 3);  //tolgo ultimi 3 caratteri
+
+            string addr = "https://stream-fxpractice.oanda.com//v3/accounts/" + ID + "/pricing/stream?instruments=" + end;
+            
+            //copiato in parte da qui
+            //https://github.com/oanda/csharp-exchange-rates/blob/master/ExchangeRatesAPI/ExchangeRatesAPI.cs
+
+            var request = (HttpWebRequest)WebRequest.Create(addr);
+            request.Method = "GET";
+            request.Headers.Add("Authorization", "Bearer " + Constant.TOKEN);
+            request.Headers.Add("Accept-Datetime-Format", "RFC3339");
+
+            try
+            {
+                //https://docs.microsoft.com/it-it/dotnet/framework/network-programming/how-to-request-data-using-the-webrequest-class
+
+                HttpWebResponse webresponse = (HttpWebResponse)request.GetResponse();
+                var stream = webresponse.GetResponseStream();
+                StreamReader reader = new StreamReader(stream);
+                //string responseFromServer = reader.ReadToEnd();
+                //Console.WriteLine(responseFromServer);
+
+                while(true)
+                {
+                    string message = reader.ReadLine();
+                    //Console.WriteLine(reader.ReadLine());
+                    Console.WriteLine(message);
+
+                    //TODO: mi sa che sta roba è molto lenta, vedi se si riesce a velocizzare
+                    System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+                    sw.Start();
+
+                    //https://www.html.it/pag/71674/gestire-il-formato-json/
+                    dynamic obj = JsonConvert.DeserializeObject(message);
+                    sw.Stop();
+                    //Console.WriteLine(sw.ElapsedMilliseconds);
+
+                    if(obj.type == "PRICE")
+                    {
+                        string index = obj.instrument;
+                        int i = d[index];
+                        values[i].name = index;
+                        values[i].acquisto = obj.bids[0].price;
+                        values[i].vendita = obj.asks[0].price;
+                        values[i].timeStamp = obj.time;
+
+                        System.DateTime now = DateTime.Now;
+                        values[i].timeStampLocal = now;
                         
-            start = usefullData.IndexOf(Constant.DATO2);
-            usefullData = usefullData.Substring(start);
+                        values[i].NumberOfUpdate++;
+                        values[i].updateDelta();
+                    }
+                    /*catch
+                    {
+                        Console.WriteLine("IMPOSSIBILE CONVERITE!!!!!!!!!!");
+                    }*/
+                    
 
-            start = usefullData.IndexOf(Constant.DATO2);
-            stop = usefullData.IndexOf(Constant.DATO2_END);
-            usefullData = usefullData.Substring(start);
-            var dato2 = usefullData.Substring(start + Constant.DATO2.Length, stop - start - Constant.DATO2.Length);
 
-            string path = System.IO.Directory.GetCurrentDirectory();
-            StreamWriter sw = new StreamWriter(path + "/data.txt");
-            sw.Write(myDataBuffer);
-            sw.Close();  */           
+                    //e.acquisto = obj.prices[0].bids[0].price;
+                    //e.vendita = obj.prices[0].asks[0].price;
+                }
+
+                //dynamic obj = JsonConvert.DeserializeObject(responseFromServer);
+                //Console.WriteLine("-----------");
+                //Console.WriteLine(obj.accounts[0].id);
+                webresponse.Close();
+
+                //string ID = obj.accounts[0].id;
+                //return ID;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            //return "";
         }
 
-        static void t_Elapsed(object sender, ElapsedEventArgs e)
+        public static StreamReader OpenStream(string ID)
         {
-            PerformEverything();
-            Console.WriteLine(DateTime.Now.ToString());
-        }
+            var keys = d.Keys;
 
-        public static void PerformEverything()
-        {
-            var myDataBuffer = downloadWebPage();
-            Data d = GetData(myDataBuffer);
-            AppendToFile(d);
-        }
+            string end = "";
+            foreach (string s in keys)
+                end += s + "%2C";
 
+            end = end.Remove(end.Length - 3);  //tolgo ultimi 3 caratteri
 
-        public static string downloadWebPage()
-        {
-            string addr = Constant.URL;
+            string addr = "https://stream-fxpractice.oanda.com//v3/accounts/" + ID + "/pricing/stream?instruments=" + end;
+
+            //copiato in parte da qui
+            //https://github.com/oanda/csharp-exchange-rates/blob/master/ExchangeRatesAPI/ExchangeRatesAPI.cs
+
+            var request = (HttpWebRequest)WebRequest.Create(addr);
+            request.Method = "GET";
+            request.Headers.Add("Authorization", "Bearer " + Constant.TOKEN);
+            request.Headers.Add("Accept-Datetime-Format", "RFC3339");
+
             
-            WebClient client = new WebClient();
-            //client.Headers.Add("user-agent", "Only a test!");
-            client.Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)");
+            //https://docs.microsoft.com/it-it/dotnet/framework/network-programming/how-to-request-data-using-the-webrequest-class
 
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls |
-                                                   SecurityProtocolType.Ssl3 |
-                                                   (SecurityProtocolType)3072 |
-                                                   (SecurityProtocolType)768;
-
-
-            var myDataBuffer = client.DownloadString(addr);
-
-            return myDataBuffer;
+            HttpWebResponse webresponse = (HttpWebResponse)request.GetResponse();
+            var stream = webresponse.GetResponseStream();
+            StreamReader reader = new StreamReader(stream);
+            return reader;
         }
 
-        public static Data GetData(string data)
+        public static void TestDelay(string ID)
         {
-            int start = data.IndexOf(Constant.UP_ARROW);
-            int stop = data.IndexOf(Constant.END);
-            var delta = stop - start;
+            /*
+             * controlla ogni quanti secondi viene aggiornato il pacchetto di una certa informazione richiesta
+             */
 
-            string usefullData = data.Substring(start, delta);
+            try
+            {
+                //https://docs.microsoft.com/it-it/dotnet/framework/network-programming/how-to-request-data-using-the-webrequest-class
 
-            start = usefullData.IndexOf(Constant.DATO);
-            stop = usefullData.IndexOf(Constant.DATO_END);
-            var dato1 = usefullData.Substring(start + Constant.DATO.Length, stop - start - Constant.DATO.Length);
-            double d1 = Convert.ToDouble(dato1);
+                StreamReader reader = OpenStream(ID);
 
-            start = usefullData.IndexOf(Constant.DATO2);
-            usefullData = usefullData.Substring(start);
+                DateTime currentTime = new DateTime(1900, 1, 1);
+                DateTime previousTime = new DateTime(1900, 1, 1);
 
-            start = usefullData.IndexOf(Constant.DATO2);
-            stop = usefullData.IndexOf(Constant.DATO2_END);
-            usefullData = usefullData.Substring(start);
-            var dato2 = usefullData.Substring(start + Constant.DATO2.Length, stop - start - Constant.DATO2.Length);
-            double d2 = Convert.ToDouble(dato2);
+                /*
+                 * per scelta personale e arbitraria
+                 * delayArray[0] -> contatore dei delay compresi tra 0ms e 100ms
+                 * delayArray[1] -> contatore dei delay compresi tra 100ms e 200ms
+                 * ...
+                 */
+                /*int[] delayArray = new int[100];
+                for (int i = 0; i < delayArray.Length; i++)
+                    delayArray[i] = 0;*/
+                int[][] delayArray = new int[100][];
 
-            start = usefullData.IndexOf(Constant.DATO3);
-            usefullData = usefullData.Substring(start);
+                for (int i = 0; i < delayArray.Length; i++)
+                    delayArray[i] = new int[100];
 
-            start = usefullData.IndexOf(Constant.DATO3);
-            stop = usefullData.IndexOf(Constant.DATO3_END);
-            usefullData = usefullData.Substring(start);
-            var dato3 = usefullData.Substring(start + Constant.DATO3.Length, stop - start - Constant.DATO3.Length);
-            dato3 = dato3.Replace('%', ' ');
-            dato3 = dato3.TrimEnd();
-            double d3 = Convert.ToDouble(dato3);
+                for (int i = 0; i < delayArray.Length; i++)
+                    for(int j = 0; j < delayArray.Length; j++)
+                        delayArray[i][j] = 0;
 
-            Data toReturn = new Data(d1, d2, d3);
-            return toReturn;
+                while (true)
+                {
+                    string message = reader.ReadLine();
+                    //Console.WriteLine(message);
+
+                    System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+                    dynamic obj = JsonConvert.DeserializeObject(message);
+                    
+                    if (obj.type == "PRICE")
+                    {
+                        string index = obj.instrument;
+                        int i = d[index];
+                        //values[i].timeStamp = obj.time;
+
+                        previousTime = currentTime;
+                        currentTime = obj.time;
+
+                        if(currentTime.Year != 1900 & previousTime.Year != 1900)
+                        {
+                            TimeSpan span = currentTime - previousTime;
+                            double delta = span.TotalSeconds;
+                            int indice = (int)(delta);
+                            //delayArray[indice]++;
+
+                            if(indice < 100 && i < 5)
+                                delayArray[i][indice]++;
+                        }
+
+                        /*Console.Clear();
+                        for (int j = 0; j < 10; j++)
+                            Console.WriteLine(delayArray[j]);*/
+                        Console.Clear();
+                        for (int k = 0; k < 20; k++)
+                        {
+                            for (int h = 0; h < 10; h++)
+                                Console.Write("{0} ", delayArray[k][h]);
+                            Console.WriteLine();
+                        }
+                    }                    
+                }  
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
         }
-        
-        public static void AppendToFile(Data d)
+
+
+
+        static void HttpRequestGet()
         {
-            string path = System.IO.Directory.GetCurrentDirectory();
-            StreamWriter sw = File.AppendText(path + "/output.txt");
-            DateTime now = DateTime.Now;
-            sw.WriteLine(now.ToString() + ", " +  
-                         d.value.ToString().Replace(',', '.') + ", " + 
-                         d.value2.ToString().Replace(',', '.') + ", " +
-                         d.value3.ToString().Replace(',', '.') + '\n');
-            sw.Close();
+            string addr = "https://api-fxpractice.oanda.com/v3/accounts";
+            string token = "54e3bee1a8c10b14f85d9fd1348d5902-e80cd3a388c2d5c5d39d2609f3804654";
+
+            //copiato in parte da qui
+            //https://github.com/oanda/csharp-exchange-rates/blob/master/ExchangeRatesAPI/ExchangeRatesAPI.cs
+
+            var request = (HttpWebRequest)WebRequest.Create(addr);
+            //string credentialHeader = String.Format("Bearer {0}", token);
+            request.Method = "GET";
+            //request.ContentType = "application/json";
+            //request.UserAgent = "OANDAExchangeRates.C#/0.01";
+            request.Headers.Add("Authorization", "Bearer " + token);
+
+            try
+            {
+                //https://docs.microsoft.com/it-it/dotnet/framework/network-programming/how-to-request-data-using-the-webrequest-class
+
+                HttpWebResponse webresponse = (HttpWebResponse)request.GetResponse();
+                var stream = webresponse.GetResponseStream();
+                StreamReader reader = new StreamReader(stream);
+                string responseFromServer = reader.ReadToEnd();
+                Console.WriteLine(responseFromServer);
+
+                dynamic obj = JsonConvert.DeserializeObject(responseFromServer);
+                Console.WriteLine("-----------");
+                Console.WriteLine(obj.accounts[0].id);
+
+                webresponse.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
         }
-
-
+                
         public static void SendMail()
         {
             // vedi anche "https://www.iprogrammatori.it/forum-programmazione/csharp/mail-con-t44491-15.html"

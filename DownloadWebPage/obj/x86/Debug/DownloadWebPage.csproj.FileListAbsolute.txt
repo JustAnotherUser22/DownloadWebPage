@@ -2,3 +2,12 @@ C:\Users\Mirko\Documents\Visual Studio 2010\Projects\myTest\DownloadWebPage\Down
 C:\Users\Mirko\Documents\Visual Studio 2010\Projects\myTest\DownloadWebPage\DownloadWebPage\bin\Debug\DownloadWebPage.pdb
 C:\Users\Mirko\Documents\Visual Studio 2010\Projects\myTest\DownloadWebPage\DownloadWebPage\obj\x86\Debug\DownloadWebPage.exe
 C:\Users\Mirko\Documents\Visual Studio 2010\Projects\myTest\DownloadWebPage\DownloadWebPage\obj\x86\Debug\DownloadWebPage.pdb
+C:\Users\M.Truccolo\source\repos\test\webp\DownloadWebPage\DownloadWebPage\bin\Debug\DownloadWebPage.exe
+C:\Users\M.Truccolo\source\repos\test\webp\DownloadWebPage\DownloadWebPage\bin\Debug\DownloadWebPage.pdb
+C:\Users\M.Truccolo\source\repos\test\webp\DownloadWebPage\DownloadWebPage\obj\x86\Debug\DownloadWebPage.exe
+C:\Users\M.Truccolo\source\repos\test\webp\DownloadWebPage\DownloadWebPage\obj\x86\Debug\DownloadWebPage.pdb
+C:\Users\M.Truccolo\source\repos\test\webp\DownloadWebPage\DownloadWebPage\bin\Debug\DownloadWebPage.exe.config
+C:\Users\M.Truccolo\source\repos\test\webp\DownloadWebPage\DownloadWebPage\bin\Debug\Newtonsoft.Json.dll
+C:\Users\M.Truccolo\source\repos\test\webp\DownloadWebPage\DownloadWebPage\bin\Debug\Newtonsoft.Json.xml
+C:\Users\M.Truccolo\source\repos\test\webp\DownloadWebPage\DownloadWebPage\obj\x86\Debug\DownloadWebPage.csproj.CopyComplete
+C:\Users\M.Truccolo\source\repos\test\webp\DownloadWebPage\DownloadWebPage\obj\x86\Debug\DownloadWebPage.csprojAssemblyReference.cache
