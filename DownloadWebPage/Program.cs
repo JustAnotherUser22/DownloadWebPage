@@ -38,7 +38,7 @@ namespace DownloadWebPage
             string ID = GetID();
             //GetQuote(ID, "EUR_AUD", e);
             //Stream(ID);
-            TestDelay(ID);
+            TestDelayMultiple(ID);
 
             System.Threading.Thread th = new System.Threading.Thread(() => Stream(ID));
             th.Start();
@@ -306,7 +306,7 @@ namespace DownloadWebPage
             return reader;
         }
 
-        public static void TestDelay(string ID)
+        public static void TestDelaySingle(string ID)
         {
             /*
              * controlla ogni quanti secondi viene aggiornato il pacchetto di una certa informazione richiesta
@@ -327,18 +327,10 @@ namespace DownloadWebPage
                  * delayArray[1] -> contatore dei delay compresi tra 100ms e 200ms
                  * ...
                  */
-                /*int[] delayArray = new int[100];
+                int[] delayArray = new int[100];
                 for (int i = 0; i < delayArray.Length; i++)
-                    delayArray[i] = 0;*/
-                int[][] delayArray = new int[100][];
-
-                for (int i = 0; i < delayArray.Length; i++)
-                    delayArray[i] = new int[100];
-
-                for (int i = 0; i < delayArray.Length; i++)
-                    for(int j = 0; j < delayArray.Length; j++)
-                        delayArray[i][j] = 0;
-
+                    delayArray[i] = 0;
+                
                 while (true)
                 {
                     string message = reader.ReadLine();
@@ -361,15 +353,86 @@ namespace DownloadWebPage
                             TimeSpan span = currentTime - previousTime;
                             double delta = span.TotalSeconds;
                             int indice = (int)(delta);
+                            delayArray[indice]++;
+                        }
+
+                        Console.Clear();
+                        for (int j = 0; j < 10; j++)
+                            Console.WriteLine(delayArray[j]);                       
+                    }                    
+                }  
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
+
+         public static void TestDelayMultiple(string ID)
+        {
+            /*
+             * controlla ogni quanti secondi viene aggiornato il pacchetto di una certa informazione richiesta
+             */
+
+            try
+            {
+                //https://docs.microsoft.com/it-it/dotnet/framework/network-programming/how-to-request-data-using-the-webrequest-class
+
+                StreamReader reader = OpenStream(ID);
+
+                DateTime[] currentTime = new DateTime[100];
+                DateTime[] previousTime = new DateTime[100];
+                
+                for(int i = 0; i < 100; i++)
+                {
+                   currentTime[i] = new DateTime(1900, 1, 1);
+                   previousTime[i] = new DateTime(1900, 1, 1);
+                }
+                
+                /*
+                 * per scelta personale e arbitraria
+                 * delayArray[0] -> contatore dei delay compresi tra 0ms e 100ms
+                 * delayArray[1] -> contatore dei delay compresi tra 100ms e 200ms
+                 * ...
+                 */
+                
+                //nota: delayArray[x][y] con x = identificativo della valuta e y il contatore che voglio aggiornare
+                int[][] delayArray = new int[100][];
+
+                for (int i = 0; i < delayArray.Length; i++)
+                    delayArray[i] = new int[100];
+
+                for (int i = 0; i < delayArray.Length; i++)
+                    for(int j = 0; j < delayArray.Length; j++)
+                        delayArray[i][j] = 0;
+
+                while (true)
+                {
+                    string message = reader.ReadLine();
+                    //Console.WriteLine(message);
+
+                    System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+                    dynamic obj = JsonConvert.DeserializeObject(message);
+                    
+                    if (obj.type == "PRICE")
+                    {
+                        string index = obj.instrument;
+                        int i = d[index];
+                        
+                        previousTime[i] = currentTime[i];
+                        currentTime[i] = obj.time;
+
+                        if(currentTime[i].Year != 1900 & previousTime[i].Year != 1900)
+                        {
+                            TimeSpan span = currentTime[i] - previousTime[i];
+                            double delta = span.TotalSeconds;
+                            int indice = (int)(delta);
                             //delayArray[indice]++;
 
                             if(indice < 100 && i < 5)
                                 delayArray[i][indice]++;
                         }
 
-                        /*Console.Clear();
-                        for (int j = 0; j < 10; j++)
-                            Console.WriteLine(delayArray[j]);*/
                         Console.Clear();
                         for (int k = 0; k < 20; k++)
                         {
@@ -387,6 +450,10 @@ namespace DownloadWebPage
         }
 
 
+        
+        
+        
+        
 
         static void HttpRequestGet()
         {
