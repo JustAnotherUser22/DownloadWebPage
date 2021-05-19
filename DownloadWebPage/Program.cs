@@ -382,6 +382,9 @@ namespace DownloadWebPage
 
                 DateTime[] currentTime = new DateTime[100];
                 DateTime[] previousTime = new DateTime[100];
+
+                DateTime previousGlobalTimer = DateTime.Now;
+                DateTime currentGlobalTimer = DateTime.Now;
                 
                 for(int i = 0; i < 100; i++)
                 {
@@ -421,6 +424,7 @@ namespace DownloadWebPage
                         
                         previousTime[i] = currentTime[i];
                         currentTime[i] = obj.time;
+                        currentGlobalTimer = DateTime.Now;
 
                         if(currentTime[i].Year != 1900 & previousTime[i].Year != 1900)
                         {
@@ -429,17 +433,23 @@ namespace DownloadWebPage
                             int indice = (int)(delta);
                             //delayArray[indice]++;
 
-                            if(indice < 100 && i < 5)
+                            //if(indice < 100 && i < 5)
                                 delayArray[i][indice]++;
                         }
 
-                        Console.Clear();
-                        for (int k = 0; k < 20; k++)
+                        if((currentGlobalTimer - previousGlobalTimer).TotalSeconds > 5)
                         {
-                            for (int h = 0; h < 10; h++)
-                                Console.Write("{0} ", delayArray[k][h]);
-                            Console.WriteLine();
+                            Console.Clear();
+                            for (int k = 0; k < 40; k++)
+                            {
+                                Console.Write("{0,10}      ", Enum.GetName(typeof(Constant.tassi), k));
+                                for (int h = 0; h < 10; h++)
+                                    Console.Write("{0,3} ", delayArray[k][h]);
+                                Console.WriteLine();
+                            }
+                            previousGlobalTimer = currentGlobalTimer;
                         }
+                        
                     }                    
                 }  
             }

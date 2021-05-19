@@ -42,7 +42,7 @@ namespace DownloadWebPage
             AUD_NZD,
             AUD_SGD,
             AUD_USD,
-            /*
+            
             CAD_CHF,
             CAD_HKD,
             CAD_JPY,
@@ -50,10 +50,10 @@ namespace DownloadWebPage
             
             CHF_HKD,
             CHF_JPY,
-            CHF_ZAR,*/
+            CHF_ZAR,
             
-            //EUR_AUD,// = 0,
-            /*EUR_CAD,
+            EUR_AUD,// = 0,
+            EUR_CAD,
             EUR_CHF,
             EUR_CZK,
             
@@ -115,7 +115,7 @@ namespace DownloadWebPage
             USD_TRY,
             USD_ZAR,
 
-            ZAR_JPY,*/
+            ZAR_JPY,
 
             LAST_VALUE
         };
