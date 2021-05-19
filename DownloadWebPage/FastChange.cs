@@ -10,11 +10,13 @@ namespace DownloadWebPage
     {
         Dictionary<string, int> stringToArray;
         string[] arrayToString;
+        public int numberOfItems;
 
         public FastChange()
         {
             stringToArray = new Dictionary<string, int>();
             arrayToString = new string[100];
+            numberOfItems = 0;
         }
 
         public bool addString(string str)
@@ -27,15 +29,17 @@ namespace DownloadWebPage
             stringToArray.Add(str, lastItem);
             arrayToString[lastItem] = str;
 
+            numberOfItems++;
+
             return true;
         }
 
-        string getStringAt (int index)
+        string getStringAtInt (int index)
         {
             return arrayToString[index];
         }
 
-        int getStringAt (string str)
+        int getIntAtString (string str)
         {
             return stringToArray[str];
         }

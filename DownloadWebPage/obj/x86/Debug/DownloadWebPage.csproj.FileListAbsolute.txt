@@ -11,3 +11,10 @@ C:\Users\M.Truccolo\source\repos\test\webp\DownloadWebPage\DownloadWebPage\bin\D
 C:\Users\M.Truccolo\source\repos\test\webp\DownloadWebPage\DownloadWebPage\bin\Debug\Newtonsoft.Json.xml
 C:\Users\M.Truccolo\source\repos\test\webp\DownloadWebPage\DownloadWebPage\obj\x86\Debug\DownloadWebPage.csproj.CopyComplete
 C:\Users\M.Truccolo\source\repos\test\webp\DownloadWebPage\DownloadWebPage\obj\x86\Debug\DownloadWebPage.csprojAssemblyReference.cache
+C:\Users\Mirko\Documents\Visual Studio 2010\Projects\myTest\gitTmp\DownloadWebPage\DownloadWebPage\bin\Debug\DownloadWebPage.exe.config
+C:\Users\Mirko\Documents\Visual Studio 2010\Projects\myTest\gitTmp\DownloadWebPage\DownloadWebPage\obj\x86\Debug\DownloadWebPage.exe
+C:\Users\Mirko\Documents\Visual Studio 2010\Projects\myTest\gitTmp\DownloadWebPage\DownloadWebPage\obj\x86\Debug\DownloadWebPage.pdb
+C:\Users\Mirko\Documents\Visual Studio 2010\Projects\myTest\gitTmp\DownloadWebPage\DownloadWebPage\bin\Debug\DownloadWebPage.exe
+C:\Users\Mirko\Documents\Visual Studio 2010\Projects\myTest\gitTmp\DownloadWebPage\DownloadWebPage\bin\Debug\DownloadWebPage.pdb
+C:\Users\Mirko\Documents\Visual Studio 2010\Projects\myTest\gitTmp\DownloadWebPage\DownloadWebPage\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Mirko\Documents\Visual Studio 2010\Projects\myTest\gitTmp\DownloadWebPage\DownloadWebPage\bin\Debug\Newtonsoft.Json.xml

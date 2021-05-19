@@ -23,6 +23,9 @@ namespace DownloadWebPage
 
         static void Main(string[] args)
         {
+            Test.TestGraph();
+            return;
+            
             InitDictionary();
             InitValues();
             //PrintValues();

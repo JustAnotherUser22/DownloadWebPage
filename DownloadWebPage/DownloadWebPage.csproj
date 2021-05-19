@@ -54,6 +54,8 @@
     <Compile Include="Bag.cs" />
     <Compile Include="Constant.cs" />
     <Compile Include="Data.cs" />
+    <Compile Include="Digraph.cs" />
+    <Compile Include="DirectedCycle.cs" />
     <Compile Include="DirectEdge.cs" />
     <Compile Include="EdgeWeightedDigraph.cs" />
     <Compile Include="Entry.cs" />
